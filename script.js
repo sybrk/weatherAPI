@@ -1,3 +1,11 @@
+//https://www.weatherapi.com/
+//todo: tahmin -> ileri yönelik 
+//todo: favori şehir eklemek (arge).
+//todo: api.weatherapi.com burdaki başka bir endpoint i eklemek.
+//todo: ilk yüklendiği zaman favori şehri gösterme
+//todo: ilk yüklendiği zaman querystringden ilgili şehri gösterme -> http://localhost:5500/?city=istanbul
+//todo: css ekleyelim... güzelleştirelim.
+
 //globals
 let api_key_weatherapi = "0f9bce7e09204105842165055242401";
 let derece_dom;
