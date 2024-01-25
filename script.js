@@ -8,10 +8,42 @@
 //todo: open-meteo apisinden veri çekip başka bir div de gösterelim.
 
 //globals
-let derece_dom;
-let lastUpdate_dom;
-let img_dom;
-let imgText_dom;
+let domHelper = {
+  createDOMElement: function (tagname, className, id) {
+      let createElement = document.createElement(tagname);
+      if (className !== undefined) {
+          createElement.classList.add(className);
+      }
+      if (id !== undefined) {
+          createElement.id = id;
+      }
+      return createElement;
+  },
+  appendElement: function (parent, child) {
+      parent.appendChild(child);
+  }
+}
+
+let creatingPage = {
+  createCurrentWeatherDOM: function(cityData) {
+    let cityDiv = document.getElementById("citycontainer")
+    // clean citynew before adding new elements
+    cityDiv.innerHTML = ""
+  
+    let temperatureDOM = domHelper.createDOMElement("p",undefined,"temperature");
+    temperatureDOM.textContent = cityData.temp + "°C";
+    let imageDOM = domHelper.createDOMElement("img",undefined, "weatherimage");
+    imageDOM.src = cityData.img;
+    let imagetxt = domHelper.createDOMElement("p",undefined, "imagetext");
+    imagetxt.textContent = cityData.img_text;
+    let lastUpdateDOM = domHelper.createDOMElement("p",undefined, "lastupdate");
+    lastUpdateDOM.textContent = cityData.last_update;
+    domHelper.appendElement(cityDiv,temperatureDOM);
+    domHelper.appendElement(cityDiv,imageDOM);
+    domHelper.appendElement(cityDiv,imagetxt,);
+    domHelper.appendElement(cityDiv,lastUpdateDOM);
+  }
+}
 
 async function btnClick(event) {
   await utils.loadJSAsync("dataHelper.js");
@@ -25,59 +57,9 @@ async function btnClick(event) {
   let result = await weather_api.dtoFunctions.getCurrentWeather(city);
   //generateCityDom(result);
   //generateHtml(result);
-  third_way(result);
+  creatingPage.createCurrentWeatherDOM(result);
 }
 
-function third_way(dtoCurrentWeatherObject) {
-  //put data in dom
-  derece_dom.innerText = dtoCurrentWeatherObject.temp + " derece";
-  lastUpdate_dom.innerText =
-    "Son Güncelleme : " + dtoCurrentWeatherObject.last_update;
-  img_dom.src = dtoCurrentWeatherObject.img;
-  imgText_dom.innerText = dtoCurrentWeatherObject.img_text;
-}
-
-function generateHtml(dtoCurrentWeatherObject) {
-  let generatedDataDiv = document.getElementById("generatedData");
-  generatedDataDiv.innerHTML = "";
-
-  let derece_text = dtoCurrentWeatherObject.temp + " derece";
-  let last_update = "Son Güncelleme : " + dtoCurrentWeatherObject.last_update;
-  let temp = `
-    <div>${derece_text}</div>
-    <div>${last_update}</div>
-    <img src="${dtoCurrentWeatherObject.img}"/>
-    <div>${dtoCurrentWeatherObject.img_text}</div>`;
-
-  generatedDataDiv.innerHTML = temp;
-}
-
-function generateCityDom(dtoCurrentWeatherObject) {
-  //clear dom....
-  let generatedDataDiv = document.getElementById("generatedData");
-  generatedDataDiv.innerHTML = "";
-
-  //put data in dom
-  let dataTempDiv = document.createElement("div");
-  dataTempDiv.innerText = dtoCurrentWeatherObject.temp + " derece";
-  generatedDataDiv.appendChild(dataTempDiv);
-
-  let dataLastUpdateDiv = document.createElement("div");
-  dataLastUpdateDiv.innerText =
-    "Son Güncelleme : " + dtoCurrentWeatherObject.last_update;
-  generatedDataDiv.appendChild(dataLastUpdateDiv);
-
-  let dataImg = document.createElement("img");
-  dataImg.src = dtoCurrentWeatherObject.img;
-  dataImg.addEventListener("click", () => {
-    console.log("img clicked");
-  });
-  generatedDataDiv.appendChild(dataImg);
-
-  let dataImgTextDiv = document.createElement("div");
-  dataImgTextDiv.innerText = dtoCurrentWeatherObject.img_text;
-  generatedDataDiv.appendChild(dataImgTextDiv);
-}
 
 
 
