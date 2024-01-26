@@ -42,6 +42,79 @@ let creatingPage = {
     domHelper.appendElement(cityDiv,imageDOM);
     domHelper.appendElement(cityDiv,imagetxt,);
     domHelper.appendElement(cityDiv,lastUpdateDOM);
+  },
+  createTable: function(apiResult) {
+   
+    let current = apiResult.current
+    let location = apiResult.location.name;
+    let hour = [...apiResult.forecast.forecastday[0].hour];
+    let day = [...apiResult.forecast.forecastday];
+    // hourlyTable start
+    let hourlyTable = document.getElementById("forecasttablehour");
+    hourlyTable.innerHTML = "";
+    let tableHeadRow = domHelper.createDOMElement("tr",undefined);
+    domHelper.appendElement(hourlyTable,tableHeadRow);
+    let headingCurrent = domHelper.createDOMElement("th","tableheading");
+    headingCurrent.textContent = "Current";
+    domHelper.appendElement(tableHeadRow, headingCurrent);
+    for (let i = 0; i < hour.length; i++) {
+      let hourItem = hour[i];
+      let hourHeading = domHelper.createDOMElement("th","tableheading")
+      hourHeading.textContent = hourItem.time.split(" ")[1];
+      domHelper.appendElement(tableHeadRow, hourHeading);
+    }
+    let tableDataRow = domHelper.createDOMElement("tr",undefined);
+    domHelper.appendElement(hourlyTable,tableDataRow);
+    let dataCurrent = domHelper.createDOMElement("td","tabledata");
+    dataCurrent.textContent = current.temp_c + "°C";
+    domHelper.appendElement(tableDataRow, dataCurrent);
+
+    for (let i = 0; i < hour.length; i++) {
+      let hourItem = hour[i];
+      let hourData = domHelper.createDOMElement("td","tableheading")
+      hourData.textContent = hourItem.temp_c + "°C";
+      domHelper.appendElement(tableDataRow, hourData);
+    }
+
+    let tableImageRow = domHelper.createDOMElement("tr",undefined);
+    domHelper.appendElement(hourlyTable,tableImageRow);
+    let imageCurrent = domHelper.createDOMElement("td","tabledata");
+    let imageDOM = domHelper.createDOMElement("img","cdnimage")
+    imageDOM.src = current.condition.icon;
+    domHelper.appendElement(tableImageRow, imageCurrent);
+    domHelper.appendElement(imageCurrent, imageDOM);
+
+    for (let i = 0; i < hour.length; i++) {
+      let hourItem = hour[i];
+      let hourData = domHelper.createDOMElement("td","tabledata")
+      let imageDOM = domHelper.createDOMElement("img","cdnimage")
+      imageDOM.src = hourItem.condition.icon;
+      domHelper.appendElement(tableImageRow, hourData);
+      domHelper.appendElement(hourData, imageDOM);
+    }
+    // hourlTableend
+
+    // dailyTableStart
+    let dailyTable = document.getElementById("forecasttableday");
+    dailyTable.innerHTML = ""
+    let dailyHeadingRow = domHelper.createDOMElement("tr",undefined)
+    let dailyDataRow = domHelper.createDOMElement("tr",undefined)
+    domHelper.appendElement(dailyTable, dailyHeadingRow);
+    domHelper.appendElement(dailyTable, dailyDataRow);
+
+
+    for (let i = 0; i < day.length; i++) {
+      let dayItem = day[i];
+      let dayHeading = domHelper.createDOMElement("th","tableheading")
+      dayHeading.textContent = dayItem.date.split("-")[2];
+      domHelper.appendElement(dailyHeadingRow, dayHeading);
+      let dayImageData = domHelper.createDOMElement("td","tabledata")
+      let imageDOM = domHelper.createDOMElement("img","cdnimage")
+      imageDOM.src = dayItem.day.condition.icon;
+      domHelper.appendElement(dailyDataRow, dayImageData);
+      domHelper.appendElement(dayImageData, imageDOM);
+
+    }
   }
 }
 
@@ -55,9 +128,11 @@ async function btnClick(event) {
     return;
   }
   let result = await weather_api.dtoFunctions.getCurrentWeather(city);
+  let table = await weather_api.getForcastDataWeather(city, 7);
   //generateCityDom(result);
   //generateHtml(result);
   creatingPage.createCurrentWeatherDOM(result);
+  creatingPage.createTable(table);
 }
 
 

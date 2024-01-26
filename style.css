@@ -49,3 +49,37 @@ table {
 
 /*end of reset css*/
 
+#forecastcontainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	margin: auto;
+}
+
+#hourlycontainer {
+	width: 500px;
+	overflow-x: scroll;
+}
+
+#dailycontainer {
+	width: 500px;
+	overflow-x: scroll;
+}
+table {
+	display: table;
+}
+
+tr {
+	border: solid;
+	border-collapse: collapse;
+}
+th {
+	font-weight: bold;
+	width: auto;
+}
+
+td {
+	width: auto;
+	text-align: center;
+}
