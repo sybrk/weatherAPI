@@ -12,21 +12,43 @@
 </head>
 <body>
     <div id="app">
-        <input id="txtCity" type="text" placeholder="şehir ismi giriniz"/>
-        <input id="btnSend" type="button" value="Gönder" onclick="btnClick(event)"/>
-        <div id="citycontainer">
-
-        </div>
-        <div id="forecastcontainer">
-            <div id="hourlycontainer">
-                <table id="forecasttablehour">
-                    
-                </table>
+        
+        <div id="sectioncontainer">
+            <div id="inputdiv">
+                <input id="txtCity" type="text" placeholder="şehir ismi giriniz"/>
+                <input id="btnSend" type="button" value="Gönder" onclick="btnClick(event)"/>
             </div>
-            <div id="dailycontainer">
-                <table id="forecasttableday">
-                    
-                </table>
+            <h1 id="locationname"></h1>
+            <div id="citycontainer">
+
+            </div>
+            <h2>Hourly Info</h2>
+            <div id="hourlydivcontainer">
+                
+                <div id="divhours">
+
+                </div>
+                <div id="divdegrees">
+
+                </div>
+                <div id="divhourimages">
+
+                </div>
+
+            </div>
+            <h2>Daily Info</h2>
+            <div id="dailydivcontainer">
+                
+                <div id="divdays">
+
+                </div>
+                <div id="divdaydegrees">
+
+                </div>
+                <div id="divdayimages">
+
+                </div>
+
             </div>
         </div>
         

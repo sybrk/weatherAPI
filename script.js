@@ -115,6 +115,72 @@ let creatingPage = {
       domHelper.appendElement(dayImageData, imageDOM);
 
     }
+  },
+  createPageDiv: function(apiResult) {
+    let current = apiResult.current
+    let location = apiResult.location.name;
+    let hour = [...apiResult.forecast.forecastday[0].hour];
+    let day = [...apiResult.forecast.forecastday];
+
+    let getlocationName = document.getElementById("locationname");
+    getlocationName.textContent = location
+
+    // hourly divs
+    let divHours = document.getElementById("divhours");
+    divHours.innerHTML = ""
+    let divDegrees = document.getElementById("divdegrees");
+    divDegrees.innerHTML = ""
+    let divHourImages = document.getElementById("divhourimages");
+    divHourImages.innerHTML = ""
+
+    
+    // add hourly data
+    for (let i = 0; i < hour.length; i++) {
+      let hourItem = hour[i];
+      // create hour info and add to div
+      let hourData = domHelper.createDOMElement("div","divheadings")
+      hourData.textContent = hourItem.time.split(" ")[1].split(":")[0];
+      domHelper.appendElement(divHours, hourData);
+      // create temparature info and add to div
+      let tempData = domHelper.createDOMElement("div","temp_c");
+      tempData.textContent = hourItem.temp_c + "°C";
+      domHelper.appendElement(divDegrees, tempData);
+      // create image info and add to div
+      let hourImageData = domHelper.createDOMElement("div","image_icon");
+      let imageDOM = domHelper.createDOMElement("img","cdnimage")
+      imageDOM.src = hourItem.condition.icon;
+      imageDOM.setAttribute("title", hourItem.condition.text)
+      domHelper.appendElement(divHourImages, hourImageData);
+      domHelper.appendElement(hourImageData, imageDOM);
+    }
+
+    // daily divs
+    let divDays = document.getElementById("divdays");
+    divDays.innerHTML = ""
+    let divDayDegrees = document.getElementById("divdaydegrees");
+    divDayDegrees.innerHTML = ""
+    let divDayImages = document.getElementById("divdayimages");
+    divDayImages.innerHTML = ""
+    // add daily data
+    for (let i = 0; i < day.length; i++) {
+      let dayItem = day[i];
+      // create day info and add to div
+      let dayData = domHelper.createDOMElement("div","divheadings")
+      dayData.textContent = dayItem.date.split("-")[2];
+      domHelper.appendElement(divDays, dayData);
+      // create temparature info and add to div
+      let tempData = domHelper.createDOMElement("div","temp_c");
+      tempData.textContent = dayItem.day.avgtemp_c + "°C";
+      domHelper.appendElement(divDayDegrees, tempData);
+      // create image info and add to div
+      let dayImageData = domHelper.createDOMElement("div","image_icon");
+      let imageDOM = domHelper.createDOMElement("img","cdnimage")
+      imageDOM.src = dayItem.day.condition.icon;
+      imageDOM.setAttribute("title", dayItem.day.condition.text)
+      domHelper.appendElement(divDayImages, dayImageData);
+      domHelper.appendElement(dayImageData, imageDOM);
+    }
+
   }
 }
 
@@ -132,7 +198,7 @@ async function btnClick(event) {
   //generateCityDom(result);
   //generateHtml(result);
   creatingPage.createCurrentWeatherDOM(result);
-  creatingPage.createTable(table);
+  creatingPage.createPageDiv(table);
 }
 
 

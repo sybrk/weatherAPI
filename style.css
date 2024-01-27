@@ -83,3 +83,45 @@ td {
 	width: auto;
 	text-align: center;
 }
+/* div way */
+#sectioncontainer {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	align-items: center;
+	margin: auto;
+	padding: 20px;
+}
+
+#inputdiv {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+#hourlydivcontainer, #dailydivcontainer {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: 650px;
+	overflow-x: scroll;
+	border: solid;
+	border-radius: 20px;
+	border-color: gray;
+	margin: auto;
+}
+
+#divhours, #divdegrees, #divhourimages, #divdays, #divdaydegrees, #divdayimages {
+	display: flex;
+	justify-content: center;
+    width: max-content;
+}
+
+
+.divheadings, .image_icon, .temp_c {
+	margin: 10px;
+	width: 65px;
+	text-align: center;
+	font-size: large;
+	font-weight: bold;
+}
