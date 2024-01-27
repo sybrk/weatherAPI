@@ -60,7 +60,7 @@ let creatingPage = {
     for (let i = 0; i < hour.length; i++) {
       let hourItem = hour[i];
       let hourHeading = domHelper.createDOMElement("th","tableheading")
-      hourHeading.textContent = hourItem.time.split(" ")[1];
+      hourHeading.textContent = hourItem.time.split(" ")[1].split(":")[0];
       domHelper.appendElement(tableHeadRow, hourHeading);
     }
     let tableDataRow = domHelper.createDOMElement("tr",undefined);
@@ -128,7 +128,7 @@ async function btnClick(event) {
     return;
   }
   let result = await weather_api.dtoFunctions.getCurrentWeather(city);
-  let table = await weather_api.getForcastDataWeather(city, 7);
+  let table = await weather_api.getForcastDataWeather(city, 10);
   //generateCityDom(result);
   //generateHtml(result);
   creatingPage.createCurrentWeatherDOM(result);

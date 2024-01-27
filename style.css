@@ -58,12 +58,12 @@ table {
 }
 
 #hourlycontainer {
-	width: 500px;
+	width: 650px;
 	overflow-x: scroll;
 }
 
 #dailycontainer {
-	width: 500px;
+	width: 650px;
 	overflow-x: scroll;
 }
 table {
