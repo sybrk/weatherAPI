@@ -83,6 +83,18 @@ td {
 	width: auto;
 	text-align: center;
 }
+h1 {
+	font-size: x-large;
+	font-weight: bold;
+}
+h2 {
+	font-size: large;
+	font-weight: bold;
+}
+
+p {
+	font-size: medium;
+}
 /* div way */
 #sectioncontainer {
 	display: flex;
@@ -97,6 +109,11 @@ td {
 	display: flex;
 	flex-direction: row;
 	gap: 10px;
+	height: 30px;;
+}
+
+.inputs {
+	border-radius: 10px;
 }
 
 #hourlydivcontainer, #dailydivcontainer {
@@ -124,4 +141,15 @@ td {
 	text-align: center;
 	font-size: large;
 	font-weight: bold;
+}
+
+#citycontainer {
+	display: flex;
+	flex-direction: column;
+    align-items: center;
+    gap: 10px;
+	border: solid;
+	border-color: gray;
+	border-radius: 20px;
+	padding: 10px;
 }

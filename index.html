@@ -15,8 +15,10 @@
         
         <div id="sectioncontainer">
             <div id="inputdiv">
-                <input id="txtCity" type="text" placeholder="şehir ismi giriniz"/>
-                <input id="btnSend" type="button" value="Gönder" onclick="btnClick(event)"/>
+                <input class="inputs" id="txtCity" type="text" placeholder="Enter city name"/>
+                <input class="inputs" id="btnSend" type="button" value="Search" onclick="btnClick(event)"/>
+                <input class="inputs" id="btnFavorite" type="button" value="Add to Favorites" onclick="addToFavorites()"/>
+                <select name="favorites" id="selectfavorites" onchange="changeFavorite()"></select>
             </div>
             <h1 id="locationname"></h1>
             <div id="citycontainer">

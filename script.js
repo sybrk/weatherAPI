@@ -37,7 +37,7 @@ let creatingPage = {
     let imagetxt = domHelper.createDOMElement("p",undefined, "imagetext");
     imagetxt.textContent = cityData.img_text;
     let lastUpdateDOM = domHelper.createDOMElement("p",undefined, "lastupdate");
-    lastUpdateDOM.textContent = cityData.last_update;
+    lastUpdateDOM.textContent = "Last Update: " + cityData.last_update;
     domHelper.appendElement(cityDiv,temperatureDOM);
     domHelper.appendElement(cityDiv,imageDOM);
     domHelper.appendElement(cityDiv,imagetxt,);
@@ -117,7 +117,20 @@ let creatingPage = {
     }
   },
   createPageDiv: function(apiResult) {
-    let current = apiResult.current
+    
+    let favoritesDom = document.getElementById("selectfavorites");
+    if (utils.cookie.getCookie("favorites").length > 0) {
+      let favorites = JSON.parse(utils.cookie.getCookie("favorites")).myFavorites;
+      for (let i = 0; i < favorites.length; i++) {
+        let favorite = favorites[i];
+        let optionDOM = domHelper.createDOMElement("option", "favoriteoptions");
+        optionDOM.textContent = favorite;
+        optionDOM.value = favorite;
+        domHelper.appendElement(favoritesDom,optionDOM);
+      }
+    }
+    
+
     let location = apiResult.location.name;
     let hour = [...apiResult.forecast.forecastday[0].hour];
     let day = [...apiResult.forecast.forecastday];
@@ -184,8 +197,17 @@ let creatingPage = {
   }
 }
 
-async function btnClick(event) {
+async function getResult(cityName) {
   await utils.loadJSAsync("dataHelper.js");
+  let result = await weather_api.dtoFunctions.getCurrentWeather(cityName);
+  let forecastResult = await weather_api.getForcastDataWeather(cityName, 10);
+  
+  creatingPage.createCurrentWeatherDOM(result);
+  creatingPage.createPageDiv(forecastResult);
+}
+
+async function btnClick(event) {
+  
 
   let domTxtCity = document.getElementById("txtCity");
   let city = domTxtCity.value;
@@ -193,35 +215,38 @@ async function btnClick(event) {
     alert("boş şehir ismi girilemez");
     return;
   }
-  let result = await weather_api.dtoFunctions.getCurrentWeather(city);
-  let table = await weather_api.getForcastDataWeather(city, 10);
-  //generateCityDom(result);
-  //generateHtml(result);
-  creatingPage.createCurrentWeatherDOM(result);
-  creatingPage.createPageDiv(table);
+  await getResult(city);
+  domTxtCity.value = ""
 }
 
+function addToFavorites() {
+  let cityName = document.getElementById("locationname").textContent;
+  let myCookie = JSON.stringify({myFavorites: [cityName]});
+  if (utils.cookie.getCookie("favorites").length === 0) {
+    utils.cookie.setCookie("favorites", myCookie);
+  } else {
+    myCookie = JSON.parse(utils.cookie.getCookie("favorites"));
+    if (myCookie.myFavorites.includes(cityName)) {
+      return;
+    }
+    myCookie.myFavorites.push(cityName);
+    myCookie = JSON.stringify(myCookie);
+    utils.cookie.setCookie("favorites", myCookie);
+  }
+}
 
+async function changeFavorite() {
+  let selectedOption = document.querySelector("#selectfavorites").value;
+  await getResult(selectedOption);
 
-
-// function loadDataHelper(){
-//   if(typeof weather_api === 'undefined'){
-//     loadJS('dataHelper.js');
-//   }
-// }
+}
 
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("Dom loaded");
-  derece_dom = document.getElementById("derece");
-  lastUpdate_dom = document.getElementById("lastUpdate");
-  img_dom = document.getElementById("img");
-  imgText_dom = document.getElementById("imgText");
-
-  // let responseData = await openMeteo.getCurrrentIstanbulWeather();
-  // console.log(responseData);
-
-  // weather_api.uzunluk => 10
-  //  let response_data = await weather_api.getForcastDataWeather("maltepe",3);
-  //  let json_weather_data = JSON.parse(response_data);
-  //  console.log(json_weather_data);
+  let defaultCity = "Istanbul";
+  if (utils.cookie.getCookie("favorites").length !== 0) {
+    // get first favorite city
+    defaultCity = JSON.parse(utils.cookie.getCookie("favorites")).myFavorites[0]
+  }
+  await getResult(defaultCity)
 });
