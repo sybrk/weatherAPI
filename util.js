@@ -27,6 +27,13 @@ let utils = {
       this.setCookie(cname, "", -1);
     },
   },
+  queryString: {
+    getParam: function (name) {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        let param = urlSearchParams.getAll(name)[0];
+        return param;
+    }
+  },
   loadJS: function (jsFilePath, cb) {
     //todo check script elementId
     let checkElem = document.getElementById(jsFilePath);

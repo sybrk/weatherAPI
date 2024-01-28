@@ -116,7 +116,7 @@ p {
 	border-radius: 10px;
 }
 
-#hourlydivcontainer, #dailydivcontainer {
+#hourlydivcontainer, #dailydivcontainer, #openmeteo {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
@@ -128,7 +128,7 @@ p {
 	margin: auto;
 }
 
-#divhours, #divdegrees, #divhourimages, #divdays, #divdaydegrees, #divdayimages {
+#divhours, #divdegrees, #divhourimages, #divdays, #divdaydegrees, #divdayimages, #meteodays, #meteodegrees {
 	display: flex;
 	justify-content: center;
     width: max-content;

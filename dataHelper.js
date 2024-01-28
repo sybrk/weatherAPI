@@ -50,8 +50,7 @@ let weather_api = {
   };
   
   let openMeteo = {
-    apikey: "abcskusugauydtaw7d6ta7wd57a6wd57a6w5da76wd",
-    getCurrrentIstanbulWeather: async function() {
+    getForecastData: async function(latitude, longitude) {
       var requestOptions = {
         method: 'GET',
         redirect: 'follow'
@@ -59,7 +58,7 @@ let weather_api = {
       
       try {
         
-        let result = await fetch(`https://api.open-meteo.com/v1/forecast?apikey=${this.apikey}latitude=41.0138&longitude=28.9497&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m`, requestOptions)
+        let result = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min&forecast_days=10`, requestOptions)
         .then(response => response.text());
         result = JSON.parse(result);
         return result;

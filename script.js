@@ -7,7 +7,7 @@
 //todo: css ekleyelim... güzelleştirelim.
 //todo: open-meteo apisinden veri çekip başka bir div de gösterelim.
 
-//globals
+
 let domHelper = {
   createDOMElement: function (tagname, className, id) {
       let createElement = document.createElement(tagname);
@@ -118,19 +118,6 @@ let creatingPage = {
   },
   createPageDiv: function(apiResult) {
     
-    let favoritesDom = document.getElementById("selectfavorites");
-    if (utils.cookie.getCookie("favorites").length > 0) {
-      let favorites = JSON.parse(utils.cookie.getCookie("favorites")).myFavorites;
-      for (let i = 0; i < favorites.length; i++) {
-        let favorite = favorites[i];
-        let optionDOM = domHelper.createDOMElement("option", "favoriteoptions");
-        optionDOM.textContent = favorite;
-        optionDOM.value = favorite;
-        domHelper.appendElement(favoritesDom,optionDOM);
-      }
-    }
-    
-
     let location = apiResult.location.name;
     let hour = [...apiResult.forecast.forecastday[0].hour];
     let day = [...apiResult.forecast.forecastday];
@@ -193,17 +180,50 @@ let creatingPage = {
       domHelper.appendElement(divDayImages, dayImageData);
       domHelper.appendElement(dayImageData, imageDOM);
     }
+  },
+  openMeteoDiv: function(apiResult) {
+    
+    let days = apiResult.daily.time;
+    let temperaturesMax = apiResult.daily.temperature_2m_max;
+    let temperaturesMin = apiResult.daily.temperature_2m_min;
 
+    let meteoDays = document.getElementById("meteodays");
+    meteoDays.innerHTML = ""
+    let meteoDegrees = document.getElementById("meteodegrees");
+    meteoDegrees.innerHTML = ""
+
+    for (let i = 0; i < days.length; i++) {
+      let dayItem = days[i].split("-")[2];
+      // create day info and add to div
+      let dayData = domHelper.createDOMElement("div","divheadings")
+      dayData.textContent = dayItem;
+      domHelper.appendElement(meteoDays, dayData);
+
+      // create temparature info and add to div
+      let tempData = domHelper.createDOMElement("div","temp_c");
+      tempData.textContent = ((temperaturesMax[i] + temperaturesMin[i]) / 2).toFixed(1) + "°C";
+      domHelper.appendElement(meteoDegrees, tempData);
+    }
   }
 }
 
 async function getResult(cityName) {
+  // if there is city searchString return that.
+  let paramCity = utils.queryString.getParam('city');
+  if (paramCity !== undefined) {
+    cityName = paramCity
+  }
+  
   await utils.loadJSAsync("dataHelper.js");
   let result = await weather_api.dtoFunctions.getCurrentWeather(cityName);
   let forecastResult = await weather_api.getForcastDataWeather(cityName, 10);
+  let latitude = forecastResult.location.lat;
+  let longitude = forecastResult.location.lon;
+  let meteoResult = await openMeteo.getForecastData(latitude, longitude);
   
   creatingPage.createCurrentWeatherDOM(result);
   creatingPage.createPageDiv(forecastResult);
+  creatingPage.openMeteoDiv(meteoResult);
 }
 
 async function btnClick(event) {
@@ -233,12 +253,44 @@ function addToFavorites() {
     myCookie = JSON.stringify(myCookie);
     utils.cookie.setCookie("favorites", myCookie);
   }
+  loadFavoritesList();
+}
+
+function removeFromFavorites() {
+  let favoritesDom = document.getElementById("selectfavorites");
+  if (utils.cookie.getCookie("favorites").length > 0) {
+    favoritesDom.innerHTML = "";
+    let favorites = JSON.parse(utils.cookie.getCookie("favorites")).myFavorites;
+    for (let i = 0; i < favorites.length; i++) {
+      let favorite = favorites[i];
+      let optionDOM = domHelper.createDOMElement("option", "favoriteoptions");
+      optionDOM.textContent = favorite;
+      optionDOM.value = favorite;
+      domHelper.appendElement(favoritesDom,optionDOM);
+    }
+  }
+}
+
+function loadFavoritesList() {
+  let favoritesDom = document.getElementById("selectfavorites");
+  let favoritesFromCookie = utils.cookie.getCookie("favorites")
+  if (favoritesFromCookie.length > 0) {
+    favoritesDom.innerHTML = "";
+    let favorites = JSON.parse(favoritesFromCookie).myFavorites;
+    for (let i = 0; i < favorites.length; i++) {
+      let favorite = favorites[i];
+      let optionDOM = domHelper.createDOMElement("option", "favoriteoptions");
+      optionDOM.textContent = favorite;
+      optionDOM.value = favorite;
+      domHelper.appendElement(favoritesDom,optionDOM);
+    }
+  }
 }
 
 async function changeFavorite() {
-  let selectedOption = document.querySelector("#selectfavorites").value;
+  let favoritesDom = document.getElementById("selectfavorites");
+  let selectedOption = favoritesDom.value;
   await getResult(selectedOption);
-
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -249,4 +301,5 @@ document.addEventListener("DOMContentLoaded", async function () {
     defaultCity = JSON.parse(utils.cookie.getCookie("favorites")).myFavorites[0]
   }
   await getResult(defaultCity)
+  loadFavoritesList();
 });
