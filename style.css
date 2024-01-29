@@ -112,7 +112,7 @@ p {
 	height: 30px;;
 }
 
-.inputs {
+.inputs, #selectfavorites {
 	border-radius: 10px;
 }
 

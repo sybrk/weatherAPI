@@ -34,6 +34,24 @@ let weather_api = {
         return error;
       }
     },
+    getAstronomy: async function(city, date) {
+      //http://api.weatherapi.com/v1/astronomy.json?key=0f9bce7e09204105842165055242401&q=London&dt=2024-01-29
+      var requestOptions = {
+        method: "GET",
+        redirect: "follow",
+      };
+      try {
+        let result = await fetch(
+          `http://api.weatherapi.com/v1/astronomy.json?key=${this.apikey}&q=${city}&dt=${date}`,
+          requestOptions
+        ).then((response) => response.text());
+        result = JSON.parse(result);
+        return result;
+      } catch (error) {
+        console.log("error: ", error);
+        return error;
+      }
+    },
     dtoFunctions: {
       getCurrentWeather: async function(city){
           let return_value = await weather_api.getCurrentWeather(city);

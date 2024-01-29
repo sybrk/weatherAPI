@@ -7,7 +7,7 @@
 //todo: css ekleyelim... güzelleştirelim.
 //todo: open-meteo apisinden veri çekip başka bir div de gösterelim.
 
-
+// this will help with creating and adding new DOM elements.
 let domHelper = {
   createDOMElement: function (tagname, className, id) {
       let createElement = document.createElement(tagname);
@@ -24,7 +24,9 @@ let domHelper = {
   }
 }
 
+// this is object for creating the page.
 let creatingPage = {
+  // this one creates elements and updates it with API Current endpoint.
   createCurrentWeatherDOM: function(cityData) {
     let cityDiv = document.getElementById("citycontainer")
     // clean citynew before adding new elements
@@ -43,6 +45,7 @@ let creatingPage = {
     domHelper.appendElement(cityDiv,imagetxt,);
     domHelper.appendElement(cityDiv,lastUpdateDOM);
   },
+  // I tried showing results in a table, stays here as an option.
   createTable: function(apiResult) {
    
     let current = apiResult.current
@@ -116,7 +119,8 @@ let creatingPage = {
 
     }
   },
-  createPageDiv: function(apiResult) {
+  // this creates/udpates page with multiple divs with API Forecast endpoint.
+  createForecastDiv: function(apiResult) {
     
     let location = apiResult.location.name;
     let hour = [...apiResult.forecast.forecastday[0].hour];
@@ -181,6 +185,7 @@ let creatingPage = {
       domHelper.appendElement(dayImageData, imageDOM);
     }
   },
+  // this creates/updates page with OpenMeteo API
   openMeteoDiv: function(apiResult) {
     
     let days = apiResult.daily.time;
@@ -204,26 +209,47 @@ let creatingPage = {
       tempData.textContent = ((temperaturesMax[i] + temperaturesMin[i]) / 2).toFixed(1) + "°C";
       domHelper.appendElement(meteoDegrees, tempData);
     }
+  },
+  // this creates/updates div with WeatherAPI Astronomy endpoint.
+  astronomyInfo: function(apiResult) {
+    let cityContainer = document.getElementById("citycontainer");
+    let sunRiseDOM = domHelper.createDOMElement("p", undefined);
+    let sunSetDOM = domHelper.createDOMElement("p", undefined);
+    sunRiseDOM.textContent = `Sunrise: ${apiResult.astronomy.astro.sunrise}`;
+    sunSetDOM.textContent = `Sunset: ${apiResult.astronomy.astro.sunset}`;
+    domHelper.appendElement(cityContainer,sunRiseDOM);
+    domHelper.appendElement(cityContainer,sunSetDOM);
   }
 }
 
+// this function gets result from multiple APIs and endpoints and then calls the functions to create page.
 async function getResult(cityName) {
-  // if there is city searchString return that.
+  
+  // if there is city searchString return results from that paramater value
   let paramCity = utils.queryString.getParam('city');
   if (paramCity !== undefined) {
     cityName = paramCity
   }
   
   await utils.loadJSAsync("dataHelper.js");
+  // this is result of weather api Current endpoint
   let result = await weather_api.dtoFunctions.getCurrentWeather(cityName);
+  
+  // this is result of weather api Forecast endpoint with 10 days
   let forecastResult = await weather_api.getForcastDataWeather(cityName, 10);
+  // this is result of weather api Astronomy endpoint
+  let astronomyResult = await weather_api.getAstronomy(cityName, forecastResult.forecast.forecastday[0].date);
+
+  // we get latitude and longtide info from forecast endpoint and use it to call openmeteo API.
   let latitude = forecastResult.location.lat;
   let longitude = forecastResult.location.lon;
   let meteoResult = await openMeteo.getForecastData(latitude, longitude);
   
+  // now that we called all the data we need, we can call the functions to create page.
   creatingPage.createCurrentWeatherDOM(result);
-  creatingPage.createPageDiv(forecastResult);
+  creatingPage.createForecastDiv(forecastResult);
   creatingPage.openMeteoDiv(meteoResult);
+  creatingPage.astronomyInfo(astronomyResult);
 }
 
 async function btnClick(event) {
@@ -235,17 +261,25 @@ async function btnClick(event) {
     alert("boş şehir ismi girilemez");
     return;
   }
-  await getResult(city);
+  // the url will change to querystring
+  utils.queryString.setParam(city);
+
+  // no need to call get result since the page will already refresh. uncomment below and commet above based on need.
+
+  //await getResult(city);
   domTxtCity.value = ""
 }
 
 function addToFavorites() {
   let cityName = document.getElementById("locationname").textContent;
+  // I decided to create cookie and store it as an object with JSON stringify.
   let myCookie = JSON.stringify({myFavorites: [cityName]});
+  // create cookie if not exists
   if (utils.cookie.getCookie("favorites").length === 0) {
     utils.cookie.setCookie("favorites", myCookie);
   } else {
     myCookie = JSON.parse(utils.cookie.getCookie("favorites"));
+    // if cookie already contains a city, return else add it to favorites cookie
     if (myCookie.myFavorites.includes(cityName)) {
       return;
     }
@@ -253,29 +287,17 @@ function addToFavorites() {
     myCookie = JSON.stringify(myCookie);
     utils.cookie.setCookie("favorites", myCookie);
   }
+  // update favorites list after adding a new city to favorites.
   loadFavoritesList();
 }
 
-function removeFromFavorites() {
-  let favoritesDom = document.getElementById("selectfavorites");
-  if (utils.cookie.getCookie("favorites").length > 0) {
-    favoritesDom.innerHTML = "";
-    let favorites = JSON.parse(utils.cookie.getCookie("favorites")).myFavorites;
-    for (let i = 0; i < favorites.length; i++) {
-      let favorite = favorites[i];
-      let optionDOM = domHelper.createDOMElement("option", "favoriteoptions");
-      optionDOM.textContent = favorite;
-      optionDOM.value = favorite;
-      domHelper.appendElement(favoritesDom,optionDOM);
-    }
-  }
-}
-
+// this updates the select element in html page with favorites info.
 function loadFavoritesList() {
   let favoritesDom = document.getElementById("selectfavorites");
   let favoritesFromCookie = utils.cookie.getCookie("favorites")
   if (favoritesFromCookie.length > 0) {
     favoritesDom.innerHTML = "";
+    // get favorite cities from cookie and create options with loop.
     let favorites = JSON.parse(favoritesFromCookie).myFavorites;
     for (let i = 0; i < favorites.length; i++) {
       let favorite = favorites[i];
@@ -284,17 +306,25 @@ function loadFavoritesList() {
       optionDOM.value = favorite;
       domHelper.appendElement(favoritesDom,optionDOM);
     }
+    let favoriteH1 = document.getElementById("locationname").textContent;
+    if (favorites.includes(favoriteH1)) {
+      favoritesDom.value = favoriteH1;
+    }
   }
 }
 
+// this will update page with selected favorite city.
 async function changeFavorite() {
   let favoritesDom = document.getElementById("selectfavorites");
   let selectedOption = favoritesDom.value;
-  await getResult(selectedOption);
+  // call search parameter instead of getresult
+  utils.queryString.setParam(selectedOption);
+  //await getResult(selectedOption);
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log("Dom loaded");
+  console.log("Dom loaded")
+  // if there are no favorites, then default city is Istanbul. 
   let defaultCity = "Istanbul";
   if (utils.cookie.getCookie("favorites").length !== 0) {
     // get first favorite city

@@ -32,6 +32,11 @@ let utils = {
         const urlSearchParams = new URLSearchParams(window.location.search);
         let param = urlSearchParams.getAll(name)[0];
         return param;
+    },
+    setParam: function (value) {
+      let param = new URLSearchParams(window.location.search);
+      param.set("city", value);
+      window.location.search = param.toString();
     }
   },
   loadJS: function (jsFilePath, cb) {
