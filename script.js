@@ -8,6 +8,7 @@
 //todo: open-meteo apisinden veri çekip başka bir div de gösterelim.
 
 // this will help with creating and adding new DOM elements.
+let currentTemp;
 let domHelper = {
   createDOMElement: function (tagname, className, id) {
       let createElement = document.createElement(tagname);
@@ -219,6 +220,14 @@ let creatingPage = {
     sunSetDOM.textContent = `Sunset: ${apiResult.astronomy.astro.sunset}`;
     domHelper.appendElement(cityContainer,sunRiseDOM);
     domHelper.appendElement(cityContainer,sunSetDOM);
+  },
+  geminiData: function(apiResult) {
+    let container = document.getElementById("airesponse");
+    let suggestionDOM = domHelper.createDOMElement("p", undefined);
+    let suggestions = apiResult.candidates[0].content.parts[0].text;
+    suggestionDOM.textContent = suggestions;
+    domHelper.appendElement(container,suggestionDOM);
+
   }
 }
 
@@ -244,12 +253,14 @@ async function getResult(cityName) {
   let latitude = forecastResult.location.lat;
   let longitude = forecastResult.location.lon;
   let meteoResult = await openMeteo.getForecastData(latitude, longitude);
+  currentTemp = result.temp;
   
   // now that we called all the data we need, we can call the functions to create page.
   creatingPage.createCurrentWeatherDOM(result);
   creatingPage.createForecastDiv(forecastResult);
   creatingPage.openMeteoDiv(meteoResult);
   creatingPage.astronomyInfo(astronomyResult);
+  fillAI();
 }
 
 async function btnClick(event) {
@@ -333,3 +344,63 @@ document.addEventListener("DOMContentLoaded", async function () {
   await getResult(defaultCity)
   loadFavoritesList();
 });
+
+let geminiAPI = {
+  getData: async function(degree) {
+    var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
+
+var raw = JSON.stringify({
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "give me the best outdoor activity suggestions for the weather temperature I will provide in celcius. give me 5 items only" + degree + " celcius"
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.9,
+    "topK": 1,
+    "topP": 1,
+    "maxOutputTokens": 2048,
+    "stopSequences": []
+  },
+  "safetySettings": [
+    {
+      "category": "HARM_CATEGORY_HARASSMENT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_HATE_SPEECH",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    }
+  ]
+});
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw,
+  redirect: 'follow'
+};
+
+let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=`, requestOptions)
+let result = response.json();
+  return result;
+}
+}
+
+async function fillAI() {
+  let aiResult = await geminiAPI.getData(currentTemp);
+  creatingPage.geminiData(aiResult);
+}
